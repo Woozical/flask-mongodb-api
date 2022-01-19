@@ -1,0 +1,3 @@
+This is a small project I made as an exercise to shake off some rust with Python and Flask, as well as get some exposure to MongoDB. It is a simple Flask API with a single route: `GET /users`. It allows flexible querying of different user properties, as well as filtering based on geographical distance using Haversine formula. The project is a response to the following coding challenge: https://github.com/rithmschool/coding-challenge
+
+Currently, I still need to write unit and integration tests, as well as create a simple frontend that makes use of the route. I'd also like to improve my process of handling request metadata and accepted query parameters to be more flexible / easily configurable and make use of Flask's middleware architecture.
