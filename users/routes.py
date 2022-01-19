@@ -10,6 +10,7 @@ def users_find():
   response_obj = {
     "metadata": {
       "path": "/users",
+      "page": args.get("page", 0),
       "query": args
     },
     "num_results" : len(users),
@@ -37,4 +38,7 @@ def validate_and_type_args(request):
   if "max_age" in request.args and validate_num(request.args["max_age"]):
     typed_args["max_age"] = int(request.args["max_age"])
   
+  if "page" in request.args and validate_num(request.args["page"]):
+    typed_args["page"] = int(request.args["page"])
+
   return typed_args

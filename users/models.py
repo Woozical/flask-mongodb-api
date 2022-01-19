@@ -1,25 +1,31 @@
 from app import mongo
 from utils import haversine_distance, coord_str_to_tuple
 
+
 class User:
   @staticmethod
-  def find(query_dict:dict):
+  def find(args:dict):
+    RESULTS_PER_PAGE = 5
     # Convert our query arguments to MongoDB filters
-    mongo_filters = { "$and": [] }
-    if "fav_color" in query_dict:
-      mongo_filters["$and"].append({ "fav_color": query_dict["fav_color"]})
-    if "min_age" in query_dict:
-      mongo_filters["$and"].append({ "age": { "$gte": query_dict["min_age"] } })
-    if "max_age" in query_dict:
-      mongo_filters["$and"].append({ "age": { "$lte": query_dict["max_age"] } })
+    expected = 1 if "page" in args else 0 # args must have 1 k:v pair, not counting page argument, to warrant a mongo query
+    mongo_filters = { "$and": [] } if (len(args) > expected) else {}
     
+    if "fav_color" in args:
+      mongo_filters["$and"].append({ "fav_color": { "$eq": args["fav_color"] } })
+    if "min_age" in args:
+      mongo_filters["$and"].append({ "age": { "$gte": args["min_age"] } })
+    if "max_age" in args:
+      mongo_filters["$and"].append({ "age": { "$lte": args["max_age"] } })
+    
+    page = args.get("page", 0)
+
     # Convert db result to list
-    users = [user for user in mongo.db.users.find(mongo_filters)]
+    users = [user for user in mongo.db.users.find(mongo_filters).limit(RESULTS_PER_PAGE).skip(page * RESULTS_PER_PAGE)]
 
     ### Here we have some options regarding the distance filter, I'm not sure which functionality is desired
-    if ("dist" in query_dict and "origin" in query_dict):
-      origin = coord_str_to_tuple(query_dict["origin"])
-      max_dist = query_dict["dist"]
+    if ("dist" in args and "origin" in args):
+      origin = coord_str_to_tuple(args["origin"])
+      max_dist = args["dist"]
 
       # A) Filter out users who's latest location history is beyond our distance filter, or who have no location history
       working_users = []
